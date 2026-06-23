@@ -1,0 +1,99 @@
+{
+  "faculty": [
+    {
+      "id": "F101",
+      "name": "Dr. Ramesh Kumar",
+      "email": "ramesh@uni.edu",
+      "dept": "Computer Science",
+      "contact": "+91 98001 11111",
+      "password": "welcome123"
+    },
+    {
+      "id": "F102",
+      "name": "Prof. Sunita Rao",
+      "email": "sunita@uni.edu",
+      "dept": "Mathematics",
+      "contact": "+91 98001 22222",
+      "password": "welcome123"
+    },
+    {
+      "id": "wJLH3PUzpd0",
+      "name": "prathap",
+      "email": "prathakv@gmail.com",
+      "dept": "Computer Science",
+      "contact": "1231232132",
+      "password": "welcome123"
+    }
+  ],
+  "courses": [
+    {
+      "id": "CS101",
+      "name": "Introduction to Computer Science",
+      "credits": 4,
+      "dept": "Computer Science",
+      "semester": "Fall 2024",
+      "seats": 40
+    },
+    {
+      "id": "CS202",
+      "name": "Data Structures & Algorithms",
+      "credits": 3,
+      "dept": "Computer Science",
+      "semester": "Spring 2025",
+      "seats": 35
+    }
+  ],
+  "students": [
+    {
+      "id": "S101",
+      "name": "Alice Johnson",
+      "email": "alice@uni.edu",
+      "department": "Computer Science",
+      "contactNumber": "+91 98000 11111",
+      "enrollmentYear": "2024",
+      "password": "password123"
+    }
+  ],
+  "activity": [
+    {
+      "text": "System database initialized",
+      "time": "Just now",
+      "color": "#10B981",
+      "id": "Cf_U7gatlhc"
+    },
+    {
+      "text": "prathap added as faculty",
+      "time": "just now",
+      "color": "#2563EB",
+      "id": "XvKAXjgeEg0"
+    }
+  ],
+  "enrollments": [
+    {
+      "id": "ENR-98765",
+      "studentId": "S101",
+      "courseId": "CS101",
+      "status": "ENROLLED"
+    }
+  ],
+  "courseGrading": [
+    {
+      "id": "CS101",
+      "name": "Introduction to Computer Science",
+      "students": [
+        {
+          "id": "S101",
+          "name": "Alice Johnson",
+          "grade": "A",
+          "remarks": "SLIGHT IMPROVEMENT NEEDED"
+        }
+      ]
+    },
+    {
+      "id": "CS202",
+      "name": "Data Structures & Algorithms",
+      "students": []
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

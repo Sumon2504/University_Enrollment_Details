@@ -1,65 +1,61 @@
+const API_URL = "http://localhost:3000";
 
-const courseData = {
-    "CS101": { 
-        name: "Introduction to Computer Science", 
-        students: [
-            { id: "S101", name: "Alice Johnson", grade: "", remarks: "" },
-            { id: "S102", name: "Bob Smith", grade: "", remarks: "" },
-            { id: "S105", name: "Edward Elric", grade: "", remarks: "" }
-        ]
-    },
-    "CS202": { 
-        name: "Data Structures & Algorithms", 
-        students: [
-            { id: "S103", name: "Charlie Brown", grade: "", remarks: "" },
-            { id: "S104", name: "Diana Prince", grade: "", remarks: "" }
-        ]
-    }
-};
-
+// This will hold our data once fetched from the server
+let courseData = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeSelectionListOptions();
-    refreshCourseDetailsDisplay();
-    syncRecordsTable();
     registerResponsiveMenuHandler();
+    // Load data from JSON server instead of using hardcoded variable
+    loadDataFromDatabase();
 });
 
+// Fetch data from db.json
+async function loadDataFromDatabase() {
+    try {
+        const response = await fetch(`${API_URL}/courseGrading`);
+        courseData = await response.json();
+
+        // Initialize the UI only after data is loaded
+        initializeSelectionListOptions();
+        refreshCourseDetailsDisplay();
+        syncRecordsTable();
+    } catch (error) {
+        console.error("Database connection error:", error);
+        alert("Failed to connect to the database. Make sure JSON Server is running.");
+    }
+}
 
 function initializeSelectionListOptions() {
     const selectorMenu = document.getElementById("courseSelect");
     if (!selectorMenu) return;
 
-    for (let courseKey in courseData) {
+    selectorMenu.innerHTML = ""; // Clear existing options
+
+    courseData.forEach(course => {
         let optionNode = document.createElement("option");
-        optionNode.value = courseKey;
-        optionNode.innerText = `${courseKey} - ${courseData[courseKey].name}`;
+        optionNode.value = course.id;
+        optionNode.innerText = `${course.id} - ${course.name}`;
         selectorMenu.appendChild(optionNode);
-    }
+    });
 }
 
-
 function switchActivePanel(panelId) {
-   
     document.querySelectorAll('.dashboard-view-panel').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-link-item').forEach(link => link.classList.remove('active'));
     
-   
     const targetedPanel = document.getElementById(panelId);
     const targetedNavLink = document.getElementById('nav-' + panelId);
     
     if (targetedPanel) targetedPanel.classList.add('active');
     if (targetedNavLink) targetedNavLink.classList.add('active');
 
-    
     const sideMenu = document.getElementById('sidebarMenu');
     if (sideMenu) sideMenu.classList.remove('open');
 }
 
-
 function refreshCourseDetailsDisplay() {
-    const chosenCourseKey = document.getElementById("courseSelect").value;
-    const dataNode = courseData[chosenCourseKey];
+    const chosenCourseId = document.getElementById("courseSelect").value;
+    const dataNode = courseData.find(c => c.id === chosenCourseId);
     const targetDetailsNode = document.getElementById("courseDetails");
     
     if (!dataNode || !targetDetailsNode) return;
@@ -70,15 +66,14 @@ function refreshCourseDetailsDisplay() {
     `;
 }
 
-
 function navigateToGradingWorkspace() {
-    const chosenCourseKey = document.getElementById("courseSelect").value;
-    const dataNode = courseData[chosenCourseKey];
+    const chosenCourseId = document.getElementById("courseSelect").value;
+    const dataNode = courseData.find(c => c.id === chosenCourseId);
     const studentTableContainer = document.getElementById("studentTable");
 
     if (!dataNode || !studentTableContainer) return;
 
-    document.getElementById("activeCourseBadgeIndicator").innerText = `Course Grid: ${chosenCourseKey}`;
+    document.getElementById("activeCourseBadgeIndicator").innerText = `Course Grid: ${chosenCourseId}`;
 
     let workspaceHTML = "";
     dataNode.students.forEach((student, arrayIndex) => {
@@ -100,7 +95,7 @@ function navigateToGradingWorkspace() {
                            id="remark-${arrayIndex}" value="${student.remarks}" placeholder="Enter Remarks">
                 </td>
                 <td style="text-align: center;">
-                    <button class="${buttonClass}" id="btn-${arrayIndex}" onclick="commitInputDataRowState('${chosenCourseKey}', ${arrayIndex})">
+                    <button class="${buttonClass}" id="btn-${arrayIndex}" onclick="commitInputDataRowState('${chosenCourseId}', ${arrayIndex})">
                         ${buttonText}
                     </button>
                 </td>
@@ -109,41 +104,56 @@ function navigateToGradingWorkspace() {
     });
     
     studentTableContainer.innerHTML = workspaceHTML;
-
     switchActivePanel('grading');
 }
 
 function navigateToRecordsWorkspace() {
-    
     switchActivePanel('records');
 }
 
-
-function commitInputDataRowState(courseKey, studentArrayIndex) {
+// Update local array AND send changes to db.json
+async function commitInputDataRowState(courseId, studentArrayIndex) {
     const manualGradeValue = document.getElementById(`grade-${studentArrayIndex}`).value.trim();
     const manualRemarkValue = document.getElementById(`remark-${studentArrayIndex}`).value.trim();
     
-    const student = courseData[courseKey].students[studentArrayIndex];
+    // Find the course and the specific student
+    const course = courseData.find(c => c.id === courseId);
+    const student = course.students[studentArrayIndex];
     const isAnUpdate = student.grade !== "";
 
+    // Update local data object
     student.grade = manualGradeValue || "N/A";
     student.remarks = manualRemarkValue || "No feedback logged.";
     
-   
-    if (isAnUpdate) {
-        alert(`Records modified! Updated entry matrix log for ${student.name}.`);
-    } else {
-        alert(`Manual evaluation committed successfully for entry: ${student.name}`);
-    }
+    try {
+        // Send the entire updated course object back to the server via PUT
+        const response = await fetch(`${API_URL}/courseGrading/${courseId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(course)
+        });
 
-   
-    const actionButton = document.getElementById(`btn-${studentArrayIndex}`);
-    if (actionButton) {
-        actionButton.innerText = "🔄 Update Node";
-        actionButton.className = "btn-action-update";
-    }
+        if (response.ok) {
+            if (isAnUpdate) {
+                alert(`Records modified! Updated entry matrix log for ${student.name}.`);
+            } else {
+                alert(`Manual evaluation committed successfully for entry: ${student.name}`);
+            }
 
-    syncRecordsTable(); 
+            const actionButton = document.getElementById(`btn-${studentArrayIndex}`);
+            if (actionButton) {
+                actionButton.innerText = "🔄 Update Node";
+                actionButton.className = "btn-action-update";
+            }
+
+            syncRecordsTable(); 
+        } else {
+            alert("Error: Server refused to save the data.");
+        }
+    } catch (error) {
+        console.error("Save error:", error);
+        alert("Failed to save changes to the database.");
+    }
 }
 
 function syncRecordsTable() {
@@ -153,23 +163,22 @@ function syncRecordsTable() {
     let compiledLedgerHTML = "";
     let entriesDetected = false;
 
-    for (let courseKey in courseData) {
-        courseData[courseKey].students.forEach(student => {
-            
+    courseData.forEach(course => {
+        course.students.forEach(student => {
             if (student.grade !== "") {
                 entriesDetected = true;
                 compiledLedgerHTML += `
                     <tr>
                         <td><code>${student.id}</code></td>
                         <td style="font-weight: 600;">${student.name}</td>
-                        <td><code>${courseKey}</code> ${courseData[courseKey].name}</td>
+                        <td><code>${course.id}</code> ${course.name}</td>
                         <td><span class="saved-success-tag">${student.grade}</span></td>
                         <td class="text-muted">${student.remarks}</td>
                     </tr>
                 `;
             }
         });
-    }
+    });
 
     if (!entriesDetected) {
         compiledLedgerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 1.75rem;">No manual metrics recorded yet. Archive trace sequence empty.</td></tr>`;

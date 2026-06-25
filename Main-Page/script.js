@@ -1,19 +1,18 @@
 
 
-        // --- Smart Scroll Listener: Hide Announcement Bar on Scroll Down ---
+
         const announcementBar = document.getElementById('target-announcement-bar');
         
         window.addEventListener('scroll', () => {
-            // If scrolled more than 20 pixels down, hide the announcement bar
+
             if (window.scrollY > 20) {
                 announcementBar.classList.add('hidden-scrolled');
             } else {
-                // Return to view when scrolled back up to the top
+
                 announcementBar.classList.remove('hidden-scrolled');
             }
         });
 
-        // --- Mobile Menu Toggle ---
         const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
         const menuPool = document.getElementById('menu-pool');
 
@@ -21,7 +20,7 @@
             menuPool.classList.toggle('active');
         });
 
-        // --- Live Numeric Up-Counter Script ---
+
         document.addEventListener("DOMContentLoaded", () => {
             const counters = document.querySelectorAll('.counter');
             const speed = 120; 

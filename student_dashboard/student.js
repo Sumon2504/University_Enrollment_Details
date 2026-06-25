@@ -1,51 +1,38 @@
-/* ==========================================
-   STUDENT DASHBOARD JAVASCRIPT (JSON API)
-========================================== */
-
 const API_URL = "http://localhost:3000";
 let activeStudentId = null;
 
-// Global state variables for the dashboard
+
 let studentProfile = {};
 let allCourses = [];
 let studentEnrollments = [];
 let studentGrades = [];
 
-// --- 1. SESSION PROTECTION & INIT ---
+
 document.addEventListener("DOMContentLoaded", () => {
     const sessionData = localStorage.getItem("activeUser");
     
-    // Check if logged in and is a student
+
     if (!sessionData) {
-        // FIXED PATH: Go up one folder, then into features-login-reg
         window.location.href = "../features-login-reg/student-login/student.html"; 
         return;
     }
 
     const currentUser = JSON.parse(sessionData);
     if (currentUser.role !== "student") {
-        // FIXED PATH: Go up one folder, then into features-login-reg
         window.location.href = "../features-login-reg/faculty-login/faculty.html"; 
         return;
     }
-
-    // Save the ID so we can use it to fetch data
     activeStudentId = currentUser.id;
-
-    // Load initial data and set up UI
     setupNavigation();
     loadDashboardData();
 });
 
-
-// --- 2. FETCH DATA FROM SERVER ---
 async function loadDashboardData() {
     try {
-        // Fetch profile, available courses, this student's enrollments, and grading data
         const [profileRes, coursesRes, enrollmentsRes, gradingRes] = await Promise.all([
             fetch(`${API_URL}/students/${activeStudentId}`),
             fetch(`${API_URL}/courses`),
-            fetch(`${API_URL}/enrollments?studentId=${activeStudentId}`), // Only get this student's enrollments
+            fetch(`${API_URL}/enrollments?studentId=${activeStudentId}`),
             fetch(`${API_URL}/courseGrading`)
         ]);
 
@@ -54,11 +41,10 @@ async function loadDashboardData() {
         studentEnrollments = await enrollmentsRes.json();
         const allGrading = await gradingRes.json();
 
-        // Extract this specific student's grades from the Faculty's courseGrading data
         studentGrades = [];
         allGrading.forEach(course => {
             const studentRecord = course.students.find(s => s.id === activeStudentId);
-            // If the student is in the roster AND the faculty gave them a grade
+
             if (studentRecord && studentRecord.grade && studentRecord.grade !== "") {
                 studentGrades.push({
                     courseId: course.id,
@@ -78,22 +64,20 @@ async function loadDashboardData() {
 }
 
 
-// --- 3. UI SYNC & RENDER ---
+
 function syncDashboardUI() {
-    // Sync Profile Data Elements
+
     document.getElementById("view-name").innerText = studentProfile.name || "N/A";
     document.getElementById("view-id").innerText = "Student ID: " + studentProfile.id;
     document.getElementById("view-email").innerText = studentProfile.email || "N/A";
     document.getElementById("view-dept").innerText = studentProfile.department || "Unassigned";
     document.getElementById("view-enroll").innerText = studentProfile.enrollmentYear || "2024"; // Default if not set
     
-    // Pre-fill Update Profile Form
     document.getElementById("input-name").value = studentProfile.name || "";
     document.getElementById("input-email").value = studentProfile.email || "";
     document.getElementById("input-dept").value = studentProfile.department || "";
     document.getElementById("input-contact").value = studentProfile.contactNumber || "";
 
-    // Sync Enrollment Tables
     const availableTable = document.getElementById("availableTable");
     const enrolledTable = document.getElementById("enrolledTable");
     
@@ -101,7 +85,7 @@ function syncDashboardUI() {
         availableTable.innerHTML = "";
         enrolledTable.innerHTML = "";
 
-        // Available Courses (Courses the student is NOT enrolled in)
+
         allCourses.forEach(c => {
             const isEnrolled = studentEnrollments.some(e => String(e.courseId) === String(c.id));
             if(!isEnrolled) {
@@ -113,8 +97,6 @@ function syncDashboardUI() {
                 </tr>`;
             }
         });
-
-        // Enrolled Courses
         studentEnrollments.forEach(e => {
             const c = allCourses.find(course => String(course.id) === String(e.courseId));
             if(c) {
@@ -128,7 +110,7 @@ function syncDashboardUI() {
         });
     }
 
-    // Sync Transcript Displays
+
     const transcriptBody = document.getElementById("transcriptBody");
     if(transcriptBody) {
         transcriptBody.innerHTML = "";
@@ -148,13 +130,9 @@ function syncDashboardUI() {
 }
 
 
-// --- 4. DATA MUTATIONS (POST/PUT/DELETE) ---
-
-// Update Profile
 document.getElementById("profileForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     
-    // Keep existing data (like passwords) but update form fields
     const updatedData = {
         ...studentProfile,
         name: document.getElementById("input-name").value,
@@ -172,14 +150,13 @@ document.getElementById("profileForm").addEventListener("submit", async (e) => {
 
         if (response.ok) {
             alert("Profile updated successfully!");
-            loadDashboardData(); // Refresh everything
+            loadDashboardData();
         }
     } catch (error) {
         alert("Error saving profile update.");
     }
 });
 
-// Enroll in Course
 window.enrollCourse = async (courseId) => {
     try {
         const response = await fetch(`${API_URL}/enrollments`, {
@@ -194,14 +171,14 @@ window.enrollCourse = async (courseId) => {
 
         if (response.ok) {
             alert("Enrollment finalized successfully.");
-            loadDashboardData(); // Refresh UI
+            loadDashboardData();
         }
     } catch (error) {
         alert("Error enrolling in course.");
     }
 };
 
-// Drop Course
+
 window.dropCourse = async (enrollmentId) => {
     if(!confirm("Are you sure you want to drop this course?")) return;
 
@@ -212,15 +189,13 @@ window.dropCourse = async (enrollmentId) => {
 
         if (response.ok) {
             alert("Course successfully dropped.");
-            loadDashboardData(); // Refresh UI
+            loadDashboardData(); 
         }
     } catch (error) {
         alert("Error dropping course.");
     }
 };
 
-
-// --- 5. NAVIGATION SETUP ---
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.page-section');
@@ -229,15 +204,12 @@ function setupNavigation() {
 
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
-            // Handle Logout
+
             if (this.id === "logout-btn") {
                 localStorage.removeItem("activeUser");
-                // FIXED PATH: Go up one folder, then into features-login-reg
                 window.location.href = "../features-login-reg/student-login/student.html";
                 return;
             }
-
-            // Normal Navigation
             navLinks.forEach(item => item.classList.remove('active'));
             this.classList.add('active');
 

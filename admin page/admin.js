@@ -1,19 +1,13 @@
-/* ==========================================
-   UNIVERSITY AMS — ADMIN PANEL JAVASCRIPT
-========================================== */
 
 const API_URL = "http://localhost:3000";
-
 let DB = {
   faculty: [],
   courses: [],
   students: [],
   activity: []
 };
- 
-let pendingAction = null;
 
-// Wait for HTML to load before running anything
+let pendingAction = null;
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
 });
@@ -43,7 +37,8 @@ function getEl(id) {
   return document.getElementById(id);
 }
 
-/* ---------- NAVIGATION & MODALS ---------- */
+
+
 function navigate(view, el) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
@@ -90,7 +85,7 @@ document.querySelectorAll(".modal-overlay").forEach(overlay => {
   });
 });
 
-/* ---------- CONFIRM DIALOG & TOAST ---------- */
+
 function openConfirm(title, msg, action) {
   getEl("confirm-title").textContent = title;
   getEl("confirm-msg").textContent   = msg;
@@ -127,7 +122,7 @@ function showToast(msg, type = "success") {
   }, 3000);
 }
 
-/* ---------- CRUD OPERATIONS ---------- */
+
 async function addActivity(text, color) {
   const newActivity = { text: text, time: "just now", color: color };
   try {
@@ -152,7 +147,7 @@ async function saveFaculty() {
     return;
   }
 
-  // Generate unique ID and default password
+ 
   const newFacultyId = "F" + Math.floor(1000 + Math.random() * 9000);
   const newFaculty = { 
     id: newFacultyId, 
@@ -271,7 +266,7 @@ function removeStudent(id, name) {
   );
 }
 
-/* ---------- RENDERING ENGINE ---------- */
+
 function renderAll() {
   renderDashboard();
   renderFaculty();
@@ -367,13 +362,12 @@ function renderStudents() {
   tbody.innerHTML = html;
 }
  
-/* ---------- FILTER FUNCTIONS ---------- */
 function filterTable(tbodyId, query, cols) {
   const rows = getEl(tbodyId).getElementsByTagName("tr");
   const q = query.toLowerCase();
  
   Array.from(rows).forEach(row => {
-    if (row.cells.length === 1) return; // Skip empty state
+    if (row.cells.length === 1) return; 
     let text = "";
     cols.forEach(col => {
       if (row.cells[col]) text += row.cells[col].textContent + " ";
@@ -385,7 +379,7 @@ function filterTable(tbodyId, query, cols) {
 function filterTableByCol(tbodyId, val, col) {
   const rows = getEl(tbodyId).getElementsByTagName("tr");
   Array.from(rows).forEach(row => {
-    if (row.cells.length === 1) return; // Skip empty state
+    if (row.cells.length === 1) return;
     const text = row.cells[col] ? row.cells[col].textContent : "";
     row.style.display = (!val || text.indexOf(val) !== -1) ? "" : "none";
   });

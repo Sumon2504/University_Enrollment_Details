@@ -41,27 +41,23 @@ document.getElementById("faculty-secure-form").addEventListener("submit", async 
     if (!valid) return;
 
     try {
-        // 1. Check if the user typed an email (contains '@') or an ID
-        const searchParam = uid.includes('@') ? 'email' : 'id';
 
-        // 2. Fetch specific faculty member by ID or Email from db.json
+        const searchParam = uid.includes('@') ? 'email' : 'id';
         const response = await fetch(`${API_URL}/faculty?${searchParam}=${uid}`);
         const users = await response.json();
-
-        // Check if user exists and password matches
         if (users.length > 0 && users[0].password === pass) {
             
-            // Success! Save session to localStorage
+
             const activeFaculty = users[0];
-// ... rest of your code stays exactly the same
+
             localStorage.setItem("activeUser", JSON.stringify({
                 id: activeFaculty.id,
                 name: activeFaculty.name,
                 role: "faculty"
             }));
 
-            // Redirect to the actual dashboard HTML page
-            window.location.href = "../../faculty_dashboard/Faculty.html"; // Update with your actual dashboard filename
+
+            window.location.href = "../../faculty_dashboard/Faculty.html"; 
 
         } else {
             globalError.classList.remove("hidden");

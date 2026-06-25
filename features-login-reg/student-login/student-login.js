@@ -1,6 +1,4 @@
-/* ==========================================
-   STUDENT LOGIN JAVASCRIPT
-========================================== */
+
 
 document.addEventListener("DOMContentLoaded", () => {
     if(typeof lucide !== 'undefined') {
@@ -37,7 +35,7 @@ document.getElementById("student-secure-form").addEventListener("submit", async 
     if (!valid) return;
 
     try {
-        // Look up by your db.json ID structure (e.g., S101)
+
         const response = await fetch(`${API_URL}/students?id=${uid}`);
         if (!response.ok) throw new Error("Server communication error");
         
@@ -51,7 +49,7 @@ document.getElementById("student-secure-form").addEventListener("submit", async 
                 role: "student"
             }));
             
-            // Successfully verified! Redirecting to dashboard
+
             window.location.href = "../../student_dashboard/student.html"; 
         } else {
             if (globalError) {

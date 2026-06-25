@@ -1,21 +1,20 @@
 const API_URL = "http://localhost:3000";
 
-// This will hold our data once fetched from the server
 let courseData = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     registerResponsiveMenuHandler();
-    // Load data from JSON server instead of using hardcoded variable
+
     loadDataFromDatabase();
 });
 
-// Fetch data from db.json
+
 async function loadDataFromDatabase() {
     try {
         const response = await fetch(`${API_URL}/courseGrading`);
         courseData = await response.json();
 
-        // Initialize the UI only after data is loaded
+
         initializeSelectionListOptions();
         refreshCourseDetailsDisplay();
         syncRecordsTable();
@@ -29,7 +28,7 @@ function initializeSelectionListOptions() {
     const selectorMenu = document.getElementById("courseSelect");
     if (!selectorMenu) return;
 
-    selectorMenu.innerHTML = ""; // Clear existing options
+    selectorMenu.innerHTML = "";
 
     courseData.forEach(course => {
         let optionNode = document.createElement("option");
@@ -111,22 +110,22 @@ function navigateToRecordsWorkspace() {
     switchActivePanel('records');
 }
 
-// Update local array AND send changes to db.json
+
 async function commitInputDataRowState(courseId, studentArrayIndex) {
     const manualGradeValue = document.getElementById(`grade-${studentArrayIndex}`).value.trim();
     const manualRemarkValue = document.getElementById(`remark-${studentArrayIndex}`).value.trim();
     
-    // Find the course and the specific student
+
     const course = courseData.find(c => c.id === courseId);
     const student = course.students[studentArrayIndex];
     const isAnUpdate = student.grade !== "";
 
-    // Update local data object
+
     student.grade = manualGradeValue || "N/A";
     student.remarks = manualRemarkValue || "No feedback logged.";
     
     try {
-        // Send the entire updated course object back to the server via PUT
+
         const response = await fetch(`${API_URL}/courseGrading/${courseId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },

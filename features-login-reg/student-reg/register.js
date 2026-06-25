@@ -1,6 +1,4 @@
-/* ==========================================
-   STUDENT REGISTER JAVASCRIPT
-========================================== */
+
 
 document.addEventListener("DOMContentLoaded", () => {
     if(typeof lucide !== 'undefined') {
@@ -39,7 +37,7 @@ document.getElementById("registration-form").addEventListener("submit", async fu
     if (!valid) return;
 
     try {
-        // Fetch current students to safely calculate the next serial "Sxxx" ID
+
         const res = await fetch(`${API_URL}/students`);
         const currentStudents = await res.json();
         
@@ -60,7 +58,6 @@ document.getElementById("registration-form").addEventListener("submit", async fu
             password: pass
         };
 
-        // Post to json-server database array
         const response = await fetch(`${API_URL}/students`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

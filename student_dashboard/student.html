@@ -15,6 +15,7 @@
         </div>
         <div>
             <span class="role-badge">Role: Student</span>
+            
         </div>
     </header>
 
@@ -25,7 +26,9 @@
                 <li><a class="nav-link active" data-target="profile-sec">👤 My Identity Profile</a></li>
                 <li><a class="nav-link" data-target="enrollment-sec">✏️ Enrollment Center</a></li>
                 <li><a class="nav-link" data-target="records-sec">📄 Academic Transcripts</a></li>
+                <button class="btn-session-exit" onclick="localStorage.removeItem('activeUser'); window.location.href='../features-login-reg/student-login/student-login.html'">Logout</button>
             </ul>
+            
         </nav>
 
         <main class="main-content">

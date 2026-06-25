@@ -252,3 +252,50 @@ th {
     .sidebar.open { transform: translateX(0); }
     .form-grid { grid-template-columns: 1fr; }
 }
+
+
+
+
+   /* Faculty/Student Session Logout Button */
+  
+.btn-session-exit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    
+  
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.3px;
+    
+
+    background: transparent;
+    color: #f87171; 
+    border: 1px solid rgba(248, 113, 113, 0.4); 
+    border-radius: var(--radius, 6px);
+    
+    
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+
+.btn-session-exit:hover {
+    background: #b91c1c; 
+    color: #ffffff;      
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.2); 
+}
+
+
+.btn-session-exit:active {
+    transform: scale(0.97);
+}
+
+.btn-session-exit:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.4);
+}

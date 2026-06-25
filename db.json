@@ -52,6 +52,15 @@
       "contactNumber": "+91 98000 11111",
       "enrollmentYear": "2024",
       "password": "password123"
+    },
+    {
+      "id": "MBIXLcLXVe0",
+      "name": "Sumon Ghosh",
+      "email": "sumon@gmail.com",
+      "department": "Information Technology",
+      "contactNumber": "7654365432",
+      "enrollmentYear": "2026",
+      "password": "123456"
     }
   ],
   "activity": [
@@ -74,6 +83,12 @@
       "studentId": "S101",
       "courseId": "CS101",
       "status": "ENROLLED"
+    },
+    {
+      "studentId": "MBIXLcLXVe0",
+      "courseId": "CS101",
+      "status": "ENROLLED",
+      "id": "Dt4mGY_R6xE"
     }
   ],
   "courseGrading": [

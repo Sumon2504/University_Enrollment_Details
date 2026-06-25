@@ -10,11 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const API_URL = "http://localhost:3000";
 
-function resetState(groupId) {
-    const group = document.getElementById(groupId);
-    if(group) group.classList.remove("error");
-}
-
 function showError(groupId, errorId, message) {
     const group = document.getElementById(groupId);
     const error = document.getElementById(errorId);
@@ -37,33 +32,27 @@ document.getElementById("student-secure-form").addEventListener("submit", async 
     if (globalError) globalError.classList.add("hidden");
 
     let valid = true;
-
-    if (!uid) {
-        showError("user-group", "user-error", "Student ID required");
-        valid = false;
-    }
-    if (!pass) {
-        showError("pass-group", "pass-error", "Password required");
-        valid = false;
-    }
+    if (!uid) { showError("user-group", "user-error", "Student ID required"); valid = false; }
+    if (!pass) { showError("pass-group", "pass-error", "Password required"); valid = false; }
     if (!valid) return;
 
     try {
-        // Fetch specific student by ID from db.json
+        // Look up by your db.json ID structure (e.g., S101)
         const response = await fetch(`${API_URL}/students?id=${uid}`);
+        if (!response.ok) throw new Error("Server communication error");
+        
         const users = await response.json();
 
-        // Check if user exists and password matches
         if (users.length > 0 && users[0].password === pass) {
-
             const activeStudent = users[0];
             localStorage.setItem("activeUser", JSON.stringify({
                 id: activeStudent.id,
                 name: activeStudent.name,
                 role: "student"
             }));
+            
+            // Successfully verified! Redirecting to dashboard
             window.location.href = "../../student_dashboard/student.html"; 
-
         } else {
             if (globalError) {
                 globalError.classList.remove("hidden");
@@ -76,7 +65,7 @@ document.getElementById("student-secure-form").addEventListener("submit", async 
         console.error("Database connection failed", error);
         if (globalError) {
             globalError.classList.remove("hidden");
-            globalErrorText.innerText = "Cannot connect to the database.";
+            globalErrorText.innerText = "Cannot connect to the database. Is json-server running?";
         } else {
             alert("Cannot connect to the database. Is json-server running?");
         }
@@ -90,3 +79,5 @@ if(forgotBtn) {
         alert("Contact admin to reset password.");
     });
 }
+
+

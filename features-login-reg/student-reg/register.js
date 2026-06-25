@@ -1,5 +1,11 @@
+/* ==========================================
+   STUDENT REGISTER JAVASCRIPT
+========================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
-    lucide.createIcons();
+    if(typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 });
 
 const API_URL = "http://localhost:3000";
@@ -7,10 +13,8 @@ const API_URL = "http://localhost:3000";
 function showError(groupId, errorId, message) {
     const group = document.getElementById(groupId);
     const error = document.getElementById(errorId);
-
-    group.classList.add("error");
-    error.textContent = message;
-    error.classList.remove("hidden");
+    if(group) group.classList.add("error");
+    if(error) { error.textContent = message; error.classList.remove("hidden"); }
 }
 
 function clearErrors() {
@@ -28,42 +32,35 @@ document.getElementById("registration-form").addEventListener("submit", async fu
     const confirm = document.getElementById("confirm-password").value;
 
     let valid = true;
-
-    if (!name) {
-        showError("name-group", "name-error", "Full name is required");
-        valid = false;
-    }
-
-    if (!email || !email.includes("@")) {
-        showError("email-group", "email-error", "Valid email is required");
-        valid = false;
-    }
-
-    if (pass.length < 6) {
-        showError("pass-group", "pass-error", "At least 6 characters required");
-        valid = false;
-    }
-
-    if (pass !== confirm) {
-        showError("confirm-group", "confirm-error", "Passwords do not match");
-        valid = false;
-    }
-
+    if (!name) { showError("name-group", "name-error", "Full name is required"); valid = false; }
+    if (!email || !email.includes("@")) { showError("email-group", "email-error", "Valid email is required"); valid = false; }
+    if (pass.length < 6) { showError("pass-group", "pass-error", "At least 6 characters required"); valid = false; }
+    if (pass !== confirm) { showError("confirm-group", "confirm-error", "Passwords do not match"); valid = false; }
     if (!valid) return;
 
-    // Generate a simple unique ID for the new student (e.g., S8492)
-    const newStudentId = "S" + Math.floor(1000 + Math.random() * 9000);
-
-    const newStudent = {
-        id: newStudentId,
-        name: name,
-        email: email,
-        password: pass,
-        department: "Unassigned" 
-    };
-
     try {
-        // Save to db.json
+        // Fetch current students to safely calculate the next serial "Sxxx" ID
+        const res = await fetch(`${API_URL}/students`);
+        const currentStudents = await res.json();
+        
+        let nextNum = 102; 
+        if (currentStudents.length > 0) {
+            const ids = currentStudents.map(s => parseInt(s.id.replace("S", "")) || 100);
+            nextNum = Math.max(...ids) + 1;
+        }
+        const newStudentId = "S" + nextNum;
+
+        const newStudent = {
+            id: newStudentId,
+            name: name,
+            email: email,
+            department: "Unassigned",
+            contactNumber: "",
+            enrollmentYear: "2026",
+            password: pass
+        };
+
+        // Post to json-server database array
         const response = await fetch(`${API_URL}/students`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -74,21 +71,19 @@ document.getElementById("registration-form").addEventListener("submit", async fu
             document.getElementById("register-view").classList.add("hidden");
             document.getElementById("success-view").classList.remove("hidden");
             
-            // Add the generated ID to the success screen so the student knows their login ID
             const successMsg = document.createElement("p");
             successMsg.style.marginTop = "10px";
-            successMsg.innerHTML = `<strong>Your Student ID is: ${newStudentId}</strong><br>Redirecting to login...`;
+            successMsg.innerHTML = `<strong>Your Assigned Student ID is: ${newStudentId}</strong><br>Redirecting to login portal...`;
             document.getElementById("success-view").appendChild(successMsg);
 
-            // Redirect to the login page after 4 seconds
             setTimeout(() => {
-                window.location.href = "../student-login/student-login.html"; // Update with your actual login HTML filename
-            }, 2000);
+                window.location.href = "../student-login/student.html"; 
+            }, 4000);
         } else {
-            alert("Error registering student.");
+            alert("Error saving record to database backend.");
         }
     } catch (error) {
         console.error("Database connection failed", error);
-        alert("Cannot connect to the database. Is json-server running?");
+        alert("Cannot connect to the database. Make sure your json-server terminal is open on port 3000.");
     }
 });

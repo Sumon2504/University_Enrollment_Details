@@ -1,76 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-    lucide.createIcons();
+    if(typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 });
 
-const API_URL = "http://localhost:3000";
-
-function resetState(groupId) {
-    const group = document.getElementById(groupId);
-    group.classList.remove("error");
+const loginForm = document.getElementById("faculty-secure-form");
+if (loginForm) {
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        window.location.href = "../../faculty_dashboard/Faculty.html";
+    });
 }
 
-function showError(groupId, errorId, msg) {
-    const group = document.getElementById(groupId);
-    const err = document.getElementById(errorId);
-
-    group.classList.add("error");
-    err.textContent = msg;
-    err.classList.remove("hidden");
+const forgotLink = document.getElementById("forgot-link");
+if (forgotLink) {
+    forgotLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Demo Prototype: Please contact the administrator to reset your password.");
+    });
 }
-
-document.getElementById("faculty-secure-form").addEventListener("submit", async function(e) {
-    e.preventDefault();
-
-    const uid = document.getElementById("username").value.trim();
-    const pass = document.getElementById("password").value;
-    const globalError = document.getElementById("global-error");
-    const globalErrorText = document.getElementById("global-error-text");
-
-    globalError.classList.add("hidden");
-
-    let valid = true;
-
-    if (!uid) {
-        showError("user-group", "user-error", "Faculty ID required");
-        valid = false;
-    }
-    if (!pass) {
-        showError("pass-group", "pass-error", "Password required");
-        valid = false;
-    }
-    if (!valid) return;
-
-    try {
-
-        const searchParam = uid.includes('@') ? 'email' : 'id';
-        const response = await fetch(`${API_URL}/faculty?${searchParam}=${uid}`);
-        const users = await response.json();
-        if (users.length > 0 && users[0].password === pass) {
-            
-
-            const activeFaculty = users[0];
-
-            localStorage.setItem("activeUser", JSON.stringify({
-                id: activeFaculty.id,
-                name: activeFaculty.name,
-                role: "faculty"
-            }));
-
-
-            window.location.href = "../../faculty_dashboard/Faculty.html"; 
-
-        } else {
-            globalError.classList.remove("hidden");
-            globalErrorText.innerText = "Incorrect username or password.";
-        }
-    } catch (error) {
-        console.error("Database connection failed", error);
-        globalError.classList.remove("hidden");
-        globalErrorText.innerText = "Cannot connect to the database.";
-    }
-});
-
-document.getElementById("forgot-link").addEventListener("click", (e) => {
-    e.preventDefault();
-    alert("Please contact the administrator to reset your password.");
-});
